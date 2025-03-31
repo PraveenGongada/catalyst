@@ -1,0 +1,83 @@
+# This is a GoReleaser configuration file
+# For more details, visit: https://goreleaser.com
+
+version: 2
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - main: ./cmd/catalyst
+    id: "catalyst"
+    binary: catalyst
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.Version={{.Version}}
+      - -X main.Commit={{.Commit}}
+      - -X main.BuildDate={{.Date}}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - id: default
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    files:
+      - LICENSE
+      - NOTICE
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^chore:"
+      - Merge pull request
+      - Merge branch
+
+brews:
+  - directory: Formula
+    name: catalyst 
+    repository:
+      owner: PraveenGongada
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    commit_author:
+      name: goreleaserbot
+      email: goreleaser@carlosbecker.com
+    homepage: "https://github.com/PraveenGongada/catalyst"
+    description: "Terminal UI tool to simplify triggering GitHub Actions workflows with matrix configurations"
+    license: "Apache-2.0"
+    test: |
+      system "#{bin}/catalyst", "-version"
+    install: |
+      bin.install "catalyst"
+      
+      # Install completion scripts if the command exists
+      if Utils.safe_popen_read(bin/"catalyst", "-help").include?("completion")
+        bash_output = Utils.safe_popen_read(bin/"catalyst", "completion", "bash") rescue ""
+        (bash_completion/"catalyst").write bash_output unless bash_output.empty?
+        
+        zsh_output = Utils.safe_popen_read(bin/"catalyst", "completion", "zsh") rescue ""
+        (zsh_completion/"_catalyst").write zsh_output unless zsh_output.empty?
+        
+        fish_output = Utils.safe_popen_read(bin/"catalyst", "completion", "fish") rescue ""
+        (fish_completion/"catalyst.fish").write fish_output unless fish_output.empty?
+      end

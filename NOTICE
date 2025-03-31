@@ -1,0 +1,9 @@
+Copyright 2025 Praveen Kumar
+
+This software includes the following third-party libraries:
+
+github.com/charmbracelet/bubbles - MIT License
+github.com/charmbracelet/bubbletea - MIT License
+github.com/charmbracelet/huh - MIT License
+github.com/charmbracelet/lipgloss - MIT License
+gopkg.in/yaml.v3 - MIT License

@@ -1,0 +1,95 @@
+# Example configuration file for Catalyst
+# This demonstrates the core features with minimal configuration
+
+# GitHub workflow metadata
+github:
+  repository: "your-org/sample-repo"
+  workflows:
+    ios_dev:
+      name: "iOS Development Workflow"
+      file: "ios_development.yml"
+    ios_prod:
+      name: "iOS Production Workflow"
+      file: "ios_production.yml"
+    android_dev:
+      name: "Android Development Workflow"
+      file: "android_development.yml"
+    android_prod:
+      name: "Android Production Workflow"
+      file: "android_production.yml"
+
+# Dynamic inputs that can be referenced in matrices
+inputs:
+  android_version:
+    description: "App version (Android)"
+    required: true
+    default: "1.0.0"
+  ios_version:
+    description: "App version (iOS)"
+    required: true
+    default: "1.0.0"
+  android_build_number:
+    description: "Build number (Android)"
+    required: true
+    default: "1"
+  ios_build_number:
+    description: "Build number (iOS)"
+    required: true
+    default: "1"
+
+# Matrix configurations
+matrix:
+  SampleApp:
+    iOS:
+      Development:
+        workflow: "ios_dev"
+        matrix:
+          bundle_id: "com.example.sampleapp.dev"
+          version: "{{inputs.ios_version}}"
+          build_number: "{{inputs.ios_build_number}}"
+          environment: "Development"
+          scheme: "SampleApp-Dev"
+      Production:
+        workflow: "ios_prod"
+        matrix:
+          bundle_id: "com.example.sampleapp"
+          version: "{{inputs.ios_version}}"
+          build_number: "{{inputs.ios_build_number}}"
+          environment: "Production"
+          scheme: "SampleApp-Prod"
+    Android:
+      Development:
+        workflow: "android_dev"
+        matrix:
+          package_name: "com.example.sampleapp.dev"
+          version_name: "{{inputs.android_version}}"
+          version_code: "{{inputs.android_build_number}}"
+          environment: "development"
+          flavor: "dev"
+      Production:
+        workflow: "android_prod"
+        matrix:
+          package_name: "com.example.sampleapp"
+          version_name: "{{inputs.android_version}}"
+          version_code: "{{inputs.android_build_number}}"
+          environment: "production"
+          flavor: "prod"
+
+  AnotherApp:
+    iOS:
+      Development:
+        workflow: "ios_dev"
+        matrix:
+          bundle_id: "com.example.anotherapp.dev"
+          version: "{{inputs.ios_version}}"
+          build_number: "{{inputs.ios_build_number}}"
+          environment: "Development"
+          scheme: "AnotherApp-Dev"
+      Production:
+        workflow: "ios_prod"
+        matrix:
+          bundle_id: "com.example.anotherapp"
+          version: "{{inputs.ios_version}}"
+          build_number: "{{inputs.ios_build_number}}"
+          environment: "Production"
+          scheme: "AnotherApp-Prod"

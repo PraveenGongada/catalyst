@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: 
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.22.x'
+          cache: false 
+
+      - name: Create module directories with proper permissions
+        run: |
+          mkdir -p ~/go/pkg/mod
+          chmod -R 755 ~/go/pkg/mod
+          
+      - name: Clean Go module cache
+        run: go clean -modcache
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Verify Go modules
+        run: go mod verify
+
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@v7
+        with:
+          version: v2.0
+          skip-cache: true 
+
+      - name: Run golangci-lint
+        run: golangci-lint run --config=.golangci.yaml
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.22.x'
+
+      - name: Clean Go module cache
+        run: go clean -modcache
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: go test -v ./...
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.22.x'
+
+      - name: Clean Go module cache
+        run: go clean -modcache
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Build
+        run: |
+          go build -v -o catalyst ./cmd/catalyst
+          
+      - name: Verify binary works
+        run: |
+          ./catalyst --version

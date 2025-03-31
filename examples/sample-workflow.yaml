@@ -1,0 +1,51 @@
+# Example GitHub Actions workflow that works with Catalyst
+# Place this file in your repository's .github/workflows/ directory
+
+name: Example Deployment Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      payload:
+        description: 'JSON payload containing matrix configurations'
+        required: true
+      change_log:
+        description: 'Changelog for this deployment'
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    # Parse the matrices JSON from the payload
+    strategy:
+      matrix:
+        include: ${{ fromJson(fromJson(inputs.payload).matrices) }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Display build information
+        run: |
+          echo "App: ${{ matrix.name }}"
+          echo "Version: ${{ matrix.version }}"
+          echo "Build Number: ${{ matrix.build_number }}"
+          echo "Environment: ${{ matrix.environment }}"
+          echo "Branch: ${{ github.ref_name }}"
+
+      # Add your actual deployment steps here
+      - name: Deploy
+        run: |
+          echo "Deploying ${{ matrix.name }} version ${{ matrix.version }} to ${{ matrix.environment }} on branch ${{ github.ref_name }}..."
+          # Your deployment script would go here
+
+      - name: Display changelog
+        run: |
+          echo "Changelog:"
+          echo "${{ inputs.change_log }}"
+
+      - name: Show trigger information
+        run: |
+          echo "Triggered on branch: ${{ github.ref_name }}"
+          echo "Triggered by: ${{ github.actor }}"
