@@ -82,13 +82,13 @@ func (m *InputsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Interrupt
 		case "esc":
 			return m, tea.Quit
-		case "right", "ctrl+n":
+		case "ctrl+n":
 			if m.hasValidInputs() {
 				m.updateInputsFromTemp()
 				m.mainModel.moveToNextStage()
 				return m.mainModel, nil
 			}
-		case "ctrl+p", "left":
+		case "ctrl+p":
 			m.mainModel.moveToPreviousStage()
 			return m.mainModel, nil
 		}
