@@ -32,24 +32,20 @@ Catalyst is an elegant terminal UI tool that simplifies triggering GitHub Action
   - Install from: https://cli.github.com/manual/installation
   - Authenticate with: `gh auth login`
 
-### Using Homebrew (macOS)
+### Homebrew
 
 ```bash
 brew tap PraveenGongada/tap
 brew install catalyst
 ```
 
-### Using Go
+### Go
 
 ```bash
 go install github.com/PraveenGongada/catalyst/cmd/catalyst@latest
 ```
 
-### Manual Installation
-
-Download the appropriate binary for your platform from the [releases page](https://github.com/PraveenGongada/catalyst/releases).
-
-#### Linux / macOS
+### Linux
 
 ```bash
 # Download the latest release (replace X.Y.Z with actual version)
@@ -61,6 +57,10 @@ tar -xzf catalyst.tar.gz
 # Move to a directory in your PATH
 sudo mv catalyst /usr/local/bin/
 ```
+
+### Manual Installation
+
+Download the appropriate binary for your platform from the [releases page](https://github.com/PraveenGongada/catalyst/releases).
 
 ## 🔧 Configuration
 
