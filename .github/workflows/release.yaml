@@ -25,29 +25,35 @@ jobs:
           
           PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
           
+          TEMP_DIR=$(mktemp -d)
+          RELEASE_NOTES_FILE="$TEMP_DIR/RELEASE_NOTES.md"
+          
           if [ -n "$PREVIOUS_TAG" ]; then
-            echo "## What's Changed" > RELEASE_NOTES.md
-            echo "" >> RELEASE_NOTES.md
+            echo "## What's Changed" > "$RELEASE_NOTES_FILE"
+            echo "" >> "$RELEASE_NOTES_FILE"
             
             git log ${PREVIOUS_TAG}..HEAD \
               --pretty=format:"- %s ([%h](https://github.com/${{ github.repository }}/commit/%H))" \
-              --no-merges >> RELEASE_NOTES.md
+              --no-merges >> "$RELEASE_NOTES_FILE"
             
-            echo "" >> RELEASE_NOTES.md
-            echo "" >> RELEASE_NOTES.md
-            echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG}...${CURRENT_TAG}" >> RELEASE_NOTES.md
+            echo "" >> "$RELEASE_NOTES_FILE"
+            echo "" >> "$RELEASE_NOTES_FILE"
+            echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG}...${CURRENT_TAG}" >> "$RELEASE_NOTES_FILE"
           else
-            echo "## 🎉 Initial Release" > RELEASE_NOTES.md
-            echo "" >> RELEASE_NOTES.md
-            echo "This is the first release of Catalyst - an elegant terminal UI tool for triggering GitHub Actions workflows with matrix configurations." >> RELEASE_NOTES.md
-            echo "" >> RELEASE_NOTES.md
-            echo "### Features" >> RELEASE_NOTES.md
+            echo "## 🎉 Initial Release" > "$RELEASE_NOTES_FILE"
+            echo "" >> "$RELEASE_NOTES_FILE"
+            echo "This is the first release of Catalyst - an elegant terminal UI tool for triggering GitHub Actions workflows with matrix configurations." >> "$RELEASE_NOTES_FILE"
+            echo "" >> "$RELEASE_NOTES_FILE"
+            echo "### Features" >> "$RELEASE_NOTES_FILE"
             git log --pretty=format:"- %s ([%h](https://github.com/${{ github.repository }}/commit/%H))" \
-              --no-merges >> RELEASE_NOTES.md
+              --no-merges >> "$RELEASE_NOTES_FILE"
           fi
           
           echo "Generated release notes for $CURRENT_TAG"
-          cat RELEASE_NOTES.md
+          cat "$RELEASE_NOTES_FILE"
+          
+          # Set output for use in next step
+          echo "release_notes_file=$RELEASE_NOTES_FILE" >> $GITHUB_OUTPUT
 
       - name: Set up Go
         uses: actions/setup-go@v4
@@ -59,7 +65,7 @@ jobs:
         with:
           distribution: goreleaser
           version: "~> v2"
-          args: release --clean --release-notes=RELEASE_NOTES.md
+          args: release --clean --release-notes=${{ steps.release_notes.outputs.release_notes_file }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
