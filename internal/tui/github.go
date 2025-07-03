@@ -18,6 +18,7 @@ package tui
 
 import (
 	"fmt"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -121,7 +122,7 @@ func triggerAction(m *MainModel) tea.Cmd {
 		var changeLog string
 		branchName := "main"
 		if ok {
-			changeLog = inputsModel.changeLog
+			changeLog = strings.TrimSpace(inputsModel.changeLog)
 			branchName = inputsModel.GetBranchName()
 		}
 
@@ -138,6 +139,8 @@ func triggerAction(m *MainModel) tea.Cmd {
 
 		repository := m.config.GitHub.Repository
 
+		var errors []string
+
 		for workflow, matrices := range purifiedMatrices {
 			if len(matrices) == 0 {
 				continue
@@ -152,14 +155,15 @@ func triggerAction(m *MainModel) tea.Cmd {
 					branchName,
 				)
 				if err != nil {
-					return TriggerMsg{error: fmt.Errorf("'%s': %v", workflow, err)}
+					errors = append(errors, fmt.Sprintf("'%s': %v", workflow, err))
 				}
-				return TriggerMsg{error: nil}
+			} else {
+				errors = append(errors, fmt.Sprintf("workflow '%s' not found in configuration", workflow))
 			}
+		}
 
-			return TriggerMsg{
-				error: fmt.Errorf("workflow '%s' not found in configuration", workflow),
-			}
+		if len(errors) > 0 {
+			return TriggerMsg{error: fmt.Errorf("workflow trigger errors: %s", strings.Join(errors, "; "))}
 		}
 
 		return TriggerMsg{error: nil}

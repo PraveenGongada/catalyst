@@ -245,9 +245,13 @@ func (m *InputsModel) hasValidInputs() bool {
 }
 
 func (m *InputsModel) GetInputValues() map[string]string {
-	return m.inputs
+	trimmedInputs := make(map[string]string)
+	for key, value := range m.inputs {
+		trimmedInputs[key] = strings.TrimSpace(value)
+	}
+	return trimmedInputs
 }
 
 func (m *InputsModel) GetBranchName() string {
-	return m.branchName
+	return strings.TrimSpace(m.branchName)
 }
