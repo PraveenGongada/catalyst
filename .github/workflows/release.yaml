@@ -11,12 +11,43 @@ permissions:
 
 jobs:
   goreleaser:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          CURRENT_TAG=${GITHUB_REF#refs/tags/}
+          
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          if [ -n "$PREVIOUS_TAG" ]; then
+            echo "## What's Changed" > RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            
+            git log ${PREVIOUS_TAG}..HEAD \
+              --pretty=format:"- %s ([%h](https://github.com/${{ github.repository }}/commit/%H))" \
+              --no-merges >> RELEASE_NOTES.md
+            
+            echo "" >> RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG}...${CURRENT_TAG}" >> RELEASE_NOTES.md
+          else
+            echo "## 🎉 Initial Release" > RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            echo "This is the first release of Catalyst - an elegant terminal UI tool for triggering GitHub Actions workflows with matrix configurations." >> RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            echo "### Features" >> RELEASE_NOTES.md
+            git log --pretty=format:"- %s ([%h](https://github.com/${{ github.repository }}/commit/%H))" \
+              --no-merges >> RELEASE_NOTES.md
+          fi
+          
+          echo "Generated release notes for $CURRENT_TAG"
+          cat RELEASE_NOTES.md
 
       - name: Set up Go
         uses: actions/setup-go@v4
@@ -28,7 +59,7 @@ jobs:
         with:
           distribution: goreleaser
           version: "~> v2"
-          args: release --clean
+          args: release --clean --release-notes=RELEASE_NOTES.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}

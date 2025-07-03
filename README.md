@@ -23,6 +23,8 @@ Catalyst is an elegant terminal UI tool that simplifies triggering GitHub Action
 - 🔀 Specify target branch for workflow execution
 - 🔍 Preview matrix configurations before triggering
 - 🔄 Trigger GitHub Actions workflows with complex matrix configurations
+- 🔧 Extract matrix configurations for external use (GitHub UI, CI/CD automation)
+- 🌐 Maintain consistent configurations across different trigger methods
 
 ## 📦 Installation
 
@@ -142,6 +144,30 @@ Check the version:
 ```bash
 catalyst -version
 ```
+
+### Matrix Extraction
+
+Catalyst provides a powerful matrix extraction feature that allows you to generate the exact matrix configurations without going through the interactive interface. This is particularly useful when you want to:
+
+- **Use GitHub UI**: Extract matrices and manually trigger workflows through GitHub's web interface
+- **CI/CD Integration**: Incorporate Catalyst configurations into automated pipelines
+- **Debugging & Validation**: Inspect matrix configurations before deployment
+- **Flexibility**: Maintain consistent configurations while choosing your preferred trigger method
+
+Extract matrices for a specific workflow:
+
+```bash
+# Extract as JSON (default) - perfect for GitHub workflow inputs
+catalyst -extract ios_dev
+
+# Extract as YAML for better readability
+catalyst -extract android_prod -format yaml
+
+# Use with a custom config file
+catalyst -config /path/to/config.yaml -extract ios_prod
+```
+
+This approach ensures that whether you use Catalyst's TUI, the extraction feature, or any other method, your deployments remain consistent and follow the same configuration patterns defined in your `catalyst.yaml` file.
 
 ## 📋 GitHub Actions Workflow Setup
 

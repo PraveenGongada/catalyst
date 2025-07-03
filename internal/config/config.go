@@ -24,6 +24,8 @@ import (
 	"strings"
 
 	"gopkg.in/yaml.v3"
+
+	"github.com/PraveenGongada/catalyst/internal/constants"
 )
 
 type Config struct {
@@ -195,7 +197,7 @@ func (c *Config) GetEnvironments(apps []string, platforms []string) []string {
 	return environments
 }
 
-var variablePattern = regexp.MustCompile(`{{inputs\.([^}]+)}}`)
+var variablePattern = regexp.MustCompile(constants.RegexInputPlaceholder)
 
 func (c *Config) SubstituteVariables(value string, inputValues map[string]string) string {
 	return variablePattern.ReplaceAllStringFunc(value, func(match string) string {

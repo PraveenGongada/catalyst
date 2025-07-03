@@ -24,6 +24,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
 
+	"github.com/PraveenGongada/catalyst/internal/constants"
 	"github.com/PraveenGongada/catalyst/internal/styles"
 )
 
@@ -127,7 +128,7 @@ func NewInputsModel(m *MainModel) *InputsModel {
 	return inputs
 }
 
-var inputRefPattern = regexp.MustCompile(`{{inputs\.([^}]+)}}`)
+var inputRefPattern = regexp.MustCompile(constants.RegexInputPlaceholder)
 
 func getRelevantInputs(m *MainModel) []string {
 	inputsNeeded := make(map[string]bool)
