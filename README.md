@@ -34,6 +34,16 @@ Catalyst is an elegant terminal UI tool that simplifies triggering GitHub Action
   - Install from: https://cli.github.com/manual/installation
   - Authenticate with: `gh auth login`
 
+### GitHub Actions
+
+Use the [setup-catalyst](https://github.com/PraveenGongada/setup-catalyst) action in your workflows to install Catalyst:
+
+```yaml
+- name: Setup Catalyst
+  uses: PraveenGongada/setup-catalyst@v1
+  with:
+    version: 'latest' # or specify a version like 'v1.0.0'
+
 ### Homebrew
 
 ```bash
